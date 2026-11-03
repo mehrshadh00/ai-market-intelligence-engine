@@ -344,6 +344,11 @@ if results:
                     f"- {evidence}"
                 )
 
+            if client.get("source_urls"):
+                st.write("Supporting source URLs:")
+                for source_url in client["source_urls"]:
+                    st.write(source_url)
+
     # ======================================
     # RANKING
     # ======================================
@@ -384,7 +389,7 @@ if results:
         )
 
         st.write(
-            f"Accessibility: "
+            f"Website URL: "
             f"{client['accessibility_score']}"
         )
 
