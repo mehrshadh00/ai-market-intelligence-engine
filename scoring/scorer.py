@@ -44,6 +44,7 @@ def score_client(
             "supported",
         }
         and client.evidence
+        and client.source_urls
     ):
         evidence_score = 1
 
