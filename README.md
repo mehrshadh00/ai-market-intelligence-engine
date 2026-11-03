@@ -85,9 +85,9 @@ Prospects are scored in Python using configurable weights across five criteria:
 - Geographic match
 - Supporting evidence
 - Business relevance
-- Website accessibility
+- Website URL presence
 
-The scoring logic is deterministic, making the ranking easier to inspect and test than an LLM-generated score. Missing or unverified evidence is not treated as a positive signal.
+The scoring logic is deterministic, making the ranking easier to inspect and test than an LLM-generated score. The website criterion checks whether a URL was supplied; it does **not** perform a live uptime or reachability check. Missing or unverified evidence is not treated as a positive signal.
 
 ## Security Notes
 
