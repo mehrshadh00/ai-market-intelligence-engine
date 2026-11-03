@@ -4,8 +4,9 @@ import re
 
 from dotenv import load_dotenv
 from openai import OpenAI
-from models.schemas import ProductInput
+from models.schemas import Client, ProductInput
 from scoring.config import validate_weights
+from scoring.scorer import rank_clients
 
 load_dotenv()
 
@@ -151,38 +152,15 @@ but do not claim facts that the research does not support.
     data = _json_from_text(analysis_response.output_text)
 
     progress("Ranking agent: calculating weighted prospect scores...")
-    ranked = []
-    for raw in data.get("clients", []):
-        country_match = (
-            bool(country and country != "Not specified")
-            and raw.get("country", "").casefold() == country.casefold()
-        )
-        industry = bool(raw.get("field"))
-        evidence = (
-            raw.get("evidence_status", "").casefold()
-            in {"verified", "supported", "strong"}
-            and bool(raw.get("evidence"))
-            and bool(raw.get("source_urls"))
-        )
-        relevance = bool(raw.get("reason", "").strip())
-        accessibility = bool(raw.get("website", "").strip())
-
-        parts = {
-            "industry_score": weights["industry"] if industry else 0,
-            "geography_score": weights["geography"] if country_match else 0,
-            "evidence_score": weights["evidence"] if evidence else 0,
-            "relevance_score": weights["relevance"] if relevance else 0,
-            "accessibility_score": weights["accessibility"] if accessibility else 0,
-        }
-        raw["score"] = round(sum(parts.values()), 2)
-        raw.update(parts)
-        raw["explanation"] = (
-            "Deterministic weighted score. A nonzero evidence score requires "
-            "supporting evidence and at least one cited source URL."
-        )
-        ranked.append(raw)
-
-    ranked.sort(key=lambda x: (-x["score"], x["name"].casefold()))
+    client_models = [
+        Client(**raw)
+        for raw in data.get("clients", [])
+    ]
+    ranked = rank_clients(
+        client_models,
+        country,
+        weights,
+    )
 
     progress("Pipeline completed.")
     return {
