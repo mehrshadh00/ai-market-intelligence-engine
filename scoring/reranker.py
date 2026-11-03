@@ -3,12 +3,12 @@ def rerank_ties(ranked_clients):
     return sorted(
         ranked_clients,
         key=lambda item: (
-            -item["score"],
-            -item["evidence_score"],
-            -item["industry_score"],
-            -item["geography_score"],
-            -item["relevance_score"],
-            -item["accessibility_score"],
-            item["name"].casefold(),
+            -item.get("score", 0),
+            -item.get("evidence_score", 0),
+            -item.get("industry_score", 0),
+            -item.get("geography_score", 0),
+            -item.get("relevance_score", 0),
+            -item.get("accessibility_score", 0),
+            item.get("name", "").casefold(),
         ),
     )
